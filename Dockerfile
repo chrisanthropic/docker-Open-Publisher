@@ -1,6 +1,8 @@
 FROM ctarwater/docker-texlive
 MAINTAINER chrisanthropic <ctarwater@gmail.com>
 
+# Build command: docker build -t open-publisher-base .
+
 ###########################################################################################
 ###                            BEGIN CUSTOM Open-Publisher Stuff                        ###
 ###########################################################################################
@@ -50,7 +52,7 @@ RUN set -ex \
 	&& rm -r /usr/src/ruby
 
 # Git clone the Open-Publisher repo
-RUN git clone https://github.com/chrisanthropic/Open-Publisher.git
+ADD Gemfile .
 	
 ENV BUNDLER_VERSION 1.11.2
 
@@ -68,8 +70,7 @@ RUN mkdir -p "$GEM_HOME" "$BUNDLE_BIN" \
 	&& chmod 777 "$GEM_HOME" "$BUNDLE_BIN"
 
 # Install jekyll
-RUN cd Open-Publisher \
-    && bundle install --binstubs --path=vendor
+RUN bundle install --binstubs --path=vendor
 	
 # Install Pandoc
 ENV PKGREL 1
@@ -88,12 +89,6 @@ RUN rm -r /tmp/*
 # Basic cleanup
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get remove -y autoconf build-essential make && \
+    apt-get autoremove -y && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
-
-#ADD . Open-Publisher/
-
-WORKDIR /Open-Publisher
-
-#ENTRYPOINT ["bundle exec rake"]
-CMD [""]
